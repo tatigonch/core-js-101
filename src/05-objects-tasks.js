@@ -1,6 +1,6 @@
 /* ************************************************************************************************
  *                                                                                                *
- * Please read the following tutorial before implementing tasks:                                   *
+ * Plese read the following tutorial before implementing tasks:                                   *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer *
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object        *
  *                                                                                                *
@@ -8,7 +8,7 @@
 
 
 /**
- * Returns the rectangle object with width and height parameters and getArea() method
+ * Returns the rectagle object with width and height parameters and getArea() method
  *
  * @param {number} width
  * @param {number} height
@@ -20,8 +20,10 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-function Rectangle(/* width, height */) {
-  throw new Error('Not implemented');
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
+  Rectangle.prototype.getArea = () => this.width * this.height;
 }
 
 
@@ -35,8 +37,8 @@ function Rectangle(/* width, height */) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { width: 10, height : 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 
@@ -51,8 +53,8 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  return Object.assign(Object.create(proto), JSON.parse(json));
 }
 
 
@@ -64,13 +66,13 @@ function fromJSON(/* proto, json */) {
  *
  *    element#id.class[attr]:pseudoClass::pseudoElement
  *              \----/\----/\----------/
- *              Can be several occurrences
+ *              Can be several occurences
  *
- * All types of selectors can be combined using the combination ' ','+','~','>' .
+ * All types of selectors can be combined using the combinators ' ','+','~','>' .
  *
  * The task is to design a single class, independent classes or classes hierarchy
  * and implement the functionality to build the css selectors using the provided cssSelectorBuilder.
- * Each selector should have the stringify() method to output the string representation
+ * Each selector should have the stringify() method to output the string repsentation
  * according to css specification.
  *
  * Provided cssSelectorBuilder should be used as facade only to create your own classes,
@@ -109,37 +111,81 @@ function fromJSON(/* proto, json */) {
  *
  *  For more examples see unit tests.
  */
-
 const cssSelectorBuilder = {
-  element(/* value */) {
-    throw new Error('Not implemented');
+  string: '',
+  element(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}${value}`;
+    cssObject.propertyID = 1;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  id(/* value */) {
-    throw new Error('Not implemented');
+  id(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}#${value}`;
+    cssObject.propertyID = 2;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  class(/* value */) {
-    throw new Error('Not implemented');
+  class(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}.${value}`;
+    cssObject.propertyID = 3;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  attr(/* value */) {
-    throw new Error('Not implemented');
+  attr(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}[${value}]`;
+    cssObject.propertyID = 4;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  pseudoClass(/* value */) {
-    throw new Error('Not implemented');
+  pseudoClass(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}:${value}`;
+    cssObject.propertyID = 5;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  pseudoElement(/* value */) {
-    throw new Error('Not implemented');
+  pseudoElement(value) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${this.string}::${value}`;
+    cssObject.propertyID = 6;
+    this.checkCorrectness(cssObject.propertyID);
+    return cssObject;
   },
 
-  combine(/* selector1, combinator, selector2 */) {
-    throw new Error('Not implemented');
+  combine(selector1, combinator, selector2) {
+    const cssObject = Object.create(cssSelectorBuilder);
+    cssObject.string = `${selector1.string} ${combinator} ${selector2.string}`;
+    return cssObject;
+  },
+
+  stringify() {
+    return this.string;
+  },
+
+  checkCorrectness(x) {
+    this.checkUniqueness(x);
+    this.checkOrder(x);
+  },
+
+  checkUniqueness(x) {
+    if (this.propertyID === x && [1, 2, 6].includes(x)) {
+      throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+    }
+  },
+
+  checkOrder(x) {
+    if (this.propertyID > x) throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
   },
 };
-
 
 module.exports = {
   Rectangle,
